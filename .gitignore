@@ -1,0 +1,5 @@
+*.bin
+*.elf
+*.z64
+*.[oad]
+size2bin

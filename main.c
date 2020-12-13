@@ -146,6 +146,9 @@ static void err(const char msg[]) {
 
 static u8 hdrbuf[256] __attribute__((aligned(8)));
 
+static const char * const args[] = { "hello" };
+static const char * const env[] = { NULL }; // memsize, initrd_start, initrd_size?
+
 /* main code entry point */
 int main(void)
 {
@@ -211,8 +214,8 @@ int main(void)
 			(phdr->p_filesz + 1) & ~1);
 	data_cache_hit_invalidate((void *) phdr->p_paddr, (phdr->p_filesz + 3) & ~3);
 
-	void (*funcptr)() = (void *) ptr->e_entry;
-	funcptr();
+	void (*funcptr)(int, const char * const *, const char * const *, int *) = (void *) ptr->e_entry;
+	funcptr(1, args, env, NULL /* unused */);
 
 	return 0;
 }

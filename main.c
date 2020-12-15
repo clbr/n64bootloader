@@ -192,6 +192,9 @@ int main(void)
 	unlockVideo(disp);
 	delay(1);
 
+	disable_interrupts();
+	set_VI_interrupt(0, 0);
+
 	Elf32_Ehdr * const ptr = (Elf32_Ehdr *) hdrbuf;
 
 	dma_read(ptr, 0xB0101000, 256);
@@ -213,6 +216,12 @@ int main(void)
 	dma_read((void *) phdr->p_paddr, 0xB0101000 + phdr->p_offset,
 			(phdr->p_filesz + 1) & ~1);
 	data_cache_hit_invalidate((void *) phdr->p_paddr, (phdr->p_filesz + 3) & ~3);
+
+	// Zero any extra memory desired
+	if (phdr->p_filesz < phdr->p_memsz) {
+		memset((void *) (phdr->p_paddr + phdr->p_filesz), 0,
+			phdr->p_memsz - phdr->p_filesz);
+	}
 
 	void (*funcptr)(int, const char * const *, const char * const *, int *) = (void *) ptr->e_entry;
 	funcptr(1, args, env, NULL /* unused */);

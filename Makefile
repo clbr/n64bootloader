@@ -30,8 +30,8 @@ all: $(PROG_NAME)$(ROM_EXTENSION)
 $(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
 	@$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary
 	@rm -f $(PROG_NAME)$(ROM_EXTENSION)
-	@util/size2bin vmlinuz size.bin
-	@$(N64TOOL) -t "Linux" $(N64_FLAGS) -s 1048572B size.bin -s 1M vmlinuz
+	@util/size2bin vmlinux.32 size.bin
+	@$(N64TOOL) -t "Linux" $(N64_FLAGS) -s 1048572B size.bin -s 1M vmlinux.32
 	@$(CHKSUM64PATH) $(PROG_NAME)$(ROM_EXTENSION) > /dev/null
 	@rm -f $(PROG_NAME).bin
 

@@ -224,7 +224,7 @@ int main(void)
 	}
 
 	void (*funcptr)(int, const char * const *, const char * const *, int *) = (void *) ptr->e_entry;
-	funcptr(1, args, env, NULL /* unused */);
+	funcptr(sizeof(args) / sizeof(args[0]), args, env, NULL /* unused */);
 
 	return 0;
 }

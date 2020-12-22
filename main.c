@@ -146,8 +146,17 @@ static void err(const char msg[]) {
 
 static u8 hdrbuf[256] __attribute__((aligned(8)));
 
-static const char * const args[] = { "hello" };
-static const char * const env[] = { NULL }; // memsize, initrd_start, initrd_size?
+#ifdef TGT32
+static const char * const args[] = { "hello",
+					(const char *) hdrbuf,
+					(const char *) hdrbuf + 128 };
+#else
+// Our pointers are 32-bit, but we're booting a 64-bit kernel
+static const char * const args[] = { (const char *) 0xffffffff, "hello",
+					(const char *) 0xffffffff, (const char *) hdrbuf,
+					(const char *) 0xffffffff, (const char *) hdrbuf + 128 };
+#endif
+static const char * const env[] = { NULL };
 
 /* main code entry point */
 int main(void)
@@ -175,8 +184,12 @@ int main(void)
 	}
 
 	u32 kernelsize __attribute__((aligned(8)));
+	u32 disksize __attribute__((aligned(8)));
 	data_cache_hit_writeback_invalidate(&kernelsize, 4);
 	dma_read(&kernelsize, 0xB0101000 - 4, 4);
+
+	data_cache_hit_writeback_invalidate(&disksize, 4);
+	dma_read(&disksize, 0xB0101000 - 8, 4);
 
 	if (!kernelsize) {
 		printText(disp, "No kernel configured", 4, 4);
@@ -186,7 +199,8 @@ int main(void)
 		while (1);
 	}
 
-	sprintf(buf, "Booting kernel %u kb", kernelsize / 1024);
+	sprintf(buf, "Booting kernel %u kb, %u kb", kernelsize / 1024,
+			disksize / 1024);
 	printText(disp, buf, 4, 4);
 
 	unlockVideo(disp);
@@ -224,7 +238,16 @@ int main(void)
 	}
 
 	void (*funcptr)(int, const char * const *, const char * const *, int *) = (void *) ptr->e_entry;
+
+	// Fill out our disk info
+	sprintf((char *) hdrbuf, "n64cart.start=%u", 0xB0101000 + ((kernelsize + 4095) & ~4095));
+	sprintf((char *) hdrbuf + 128, "n64cart.size=%u", disksize);
+
+	#ifdef TGT32
 	funcptr(sizeof(args) / sizeof(args[0]), args, env, NULL /* unused */);
+	#else
+	funcptr(sizeof(args) / sizeof(args[0]) / 2, args, env, NULL /* unused */);
+	#endif
 
 	return 0;
 }

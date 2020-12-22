@@ -27,11 +27,21 @@ all: $(PROG_NAME)$(ROM_EXTENSION)
 
 -include $(wildcard *.d)
 
+vmlinux = vmlinux.32
+mydisk = mydisk
+
 $(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
 	@$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary
 	@rm -f $(PROG_NAME)$(ROM_EXTENSION)
-	@util/size2bin vmlinux.32 size.bin
-	@$(N64TOOL) -t "Linux" $(N64_FLAGS) -s 1048572B size.bin -s 1M vmlinux.32
+	@util/size2bin $(vmlinux) size.bin
+	@util/size2bin $(mydisk) disksize.bin
+	@DISKOFF=$$(ls -l $(vmlinux) | awk '{print $$5}'); \
+	DISKOFF=$$((((DISKOFF + 4095) & ~4095) + 1048576)); \
+	$(N64TOOL) -t "Linux" $(N64_FLAGS) \
+		-s 1048568B disksize.bin \
+		-s 1048572B size.bin \
+		-s 1M $(vmlinux) \
+		-s $${DISKOFF}B $(mydisk)
 	@$(CHKSUM64PATH) $(PROG_NAME)$(ROM_EXTENSION) > /dev/null
 	@rm -f $(PROG_NAME).bin
 

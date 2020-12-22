@@ -30,7 +30,7 @@ all: $(PROG_NAME)$(ROM_EXTENSION)
 vmlinux = vmlinux.32
 mydisk = mydisk
 
-$(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
+$(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf util/size2bin
 	@$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary
 	@rm -f $(PROG_NAME)$(ROM_EXTENSION)
 	@util/size2bin $(vmlinux) size.bin
@@ -47,6 +47,9 @@ $(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
 
 $(PROG_NAME).elf : $(OBJS)
 	$(LD) -o $(PROG_NAME).elf $(OBJS) $(LINK_FLAGS)
+
+util/size2bin:
+	$(MAKE) -C util
 
 clean:
 	rm -f *.v64 *.z64 *.elf $(OBJS) *.bin

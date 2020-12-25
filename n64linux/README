@@ -1,0 +1,44 @@
+N64 Linux
+=========
+
+This is a port of Linux to the N64. Only native drivers for now,
+that is, no Everdrive or 64drive specials. Expansion pak required.
+
+As a 64-bit MIPS BE system, it can run 32- and 64-bit kernels. The kernel
+included in this ROM is 64-bit.
+
+The userspace ABI supported depends on the kernel. A 32-bit kernel
+supports O32, 64-bit supports everything (if enabled in config).
+The N32 ABI is the best one, giving 64-bit regs but 32-bit pointers.
+
+I found uclibc-ng was broken for MIPS N32, so I used musl. No toolchain
+supplied, bring your own.
+
+Probably no emulator can run this. A heavily patched cen64 was used
+during development. Even with all the patches it's unstable and buggy
+in cen64, a big difference to hw.
+
+And yes, it's constantly flirting with OOM.
+
+Boot order
+----------
+
+Bootloader -> kernel -> small built-in initramfs -> cart disk image
+
+The bootloader only needs to be recompiled if you want to change
+the command line or to boot a 32-bit kernel. Otherwise you can
+drop in new kernels and disk images into the ROM, by truncating
+it to the first 1mb-8kb and using n64tool.
+
+Changing the built-in initramfs requires recompiling the kernel.
+
+Components in the ROM
+---------------------
+
+Linux kernel v5.10 + my n64 branch, GPL
+musl 1.2.1, MIT
+evtest git fbd7ef6fb, GPL
+busybox git 07abc7c6f, GPL
+rote 0.2.8, LGPL
+ncurses 6.2, MIT
+my joyterm git, GPL

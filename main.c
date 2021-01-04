@@ -162,16 +162,9 @@ static void err(const char msg[]) {
 
 static u8 hdrbuf[256] __attribute__((aligned(8)));
 
-#ifdef TGT32
 static const char * const args[] = { "hello",
 					(const char *) hdrbuf,
 					(const char *) hdrbuf + 128 };
-#else
-// Our pointers are 32-bit, but we're booting a 64-bit kernel
-static const char * const args[] = { (const char *) 0xffffffff, "hello",
-					(const char *) 0xffffffff, (const char *) hdrbuf,
-					(const char *) 0xffffffff, (const char *) hdrbuf + 128 };
-#endif
 static const char * const env[] = { NULL };
 
 /* main code entry point */
@@ -259,11 +252,7 @@ int main(void)
 	sprintf((char *) hdrbuf, "n64cart.start=%u", 0xB0101000 + ((kernelsize + 4095) & ~4095));
 	sprintf((char *) hdrbuf + 128, "n64cart.size=%u", disksize);
 
-	#ifdef TGT32
 	funcptr(sizeof(args) / sizeof(args[0]), args, env, NULL /* unused */);
-	#else
-	funcptr(sizeof(args) / sizeof(args[0]) / 2, args, env, NULL /* unused */);
-	#endif
 
 	return 0;
 }

@@ -25,10 +25,9 @@ Boot order
 
 Bootloader -> kernel -> small built-in initramfs -> cart disk image
 
-The bootloader only needs to be recompiled if you want to change
-the command line or to boot a 32-bit kernel. Otherwise you can
-drop in new kernels and disk images into the ROM, by truncating
-it to the first 1mb-8kb and using n64tool.
+The bootloader only needs to be recompiled if you want to change the
+command line. Otherwise you can drop in new kernels and disk images
+into the ROM, by truncating it to the first 1mb-8kb and using n64tool.
 
 Changing the built-in initramfs requires recompiling the kernel.
 

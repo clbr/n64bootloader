@@ -14,9 +14,7 @@ The N32 ABI is the best one, giving 64-bit regs but 32-bit pointers.
 I found uclibc-ng was broken for MIPS N32, so I used musl. No toolchain
 supplied, bring your own.
 
-Probably no emulator can run this. A heavily patched cen64 was used
-during development. Even with all the patches it's unstable and buggy
-in cen64, a big difference to hw.
+The port currently runs on modern LLE emulators such as Ares and dgb-n64.
 
 And yes, it's constantly flirting with OOM.
 
